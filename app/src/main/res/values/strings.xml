@@ -1,3 +1,18 @@
 <resources>
-    <string name="app_name">bulletin board</string>
+    <string name="app_name">Bulletin Board</string>
+    <string name="ad_cat1">Ad</string>
+    <string name="ad_my_ads">My Ads</string>
+    <string name="ad_car">Cars</string>
+    <string name="ad_computer">Computers</string>
+    <string name="ad_smartphone">Smartphones</string>
+    <string name="ad_ha">Household Appliances</string>
+    <string name="ad_cat2">Account</string>
+    <string name="ac_sign_up">Sign Up</string>
+    <string name="ac_log_in">Log In</string>
+    <string name="ac_exit">Exit</string>
+    <string name="example_mail">example@example.com</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+
+    <!-- App name-->
 </resources>
