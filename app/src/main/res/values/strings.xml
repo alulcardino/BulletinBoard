@@ -8,11 +8,24 @@
     <string name="ad_ha">Household Appliances</string>
     <string name="ad_cat2">Account</string>
     <string name="ac_sign_up">Sign Up</string>
-    <string name="ac_log_in">Log In</string>
-    <string name="ac_exit">Exit</string>
+    <string name="ac_sign_in">Sign In</string>
+    <string name="ac_sign_out">Sign Out</string>
     <string name="example_mail">example@example.com</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
 
     <!-- App name-->
+    <!-- Sign Dialog -->
+    <string name="email_hint">Email</string>
+    <string name="forget_password">Forget password</string>
+    <string name="password_hint">Password</string>
+    <string name="sign_up_error">Failed to Sign Up</string>
+    <string name="send_verification_email_error">Failed to send email</string>
+    <string name="send_verification_email_done">Email is send to your email</string>
+    <string name="not_reg">Log In or Sign Up</string>
+    <string name="sign_in_error">Can\'t Sign In</string>
+    <string name="reset_email_was_sent">Reset email was sent!</string>
+    <string name="reset_email_message">Please enter your email address</string>
+
+
 </resources>
