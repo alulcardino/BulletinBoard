@@ -42,7 +42,7 @@
             </item>
             <item
                 android:title="@string/ac_sign_out"
-                android:id="@+id/id_exit">
+                android:id="@+id/id_sign_out">
             </item>
         </menu>
     </item>

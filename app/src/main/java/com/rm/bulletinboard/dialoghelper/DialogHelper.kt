@@ -25,6 +25,7 @@ class DialogHelper(act: MainActivity) {
         }
         rootDialogElement.btGoogleSignIn.setOnClickListener {
             acHelper.signWithGoogle()
+            dialog.dismiss()
         }
         dialog.show()
     }
@@ -51,7 +52,7 @@ class DialogHelper(act: MainActivity) {
                 rootDialogElement.edSignPassword.text.toString()
             )
         } else {
-            acHelper.logInWithEmail(
+            acHelper.signInWithEmail(
                 rootDialogElement.edSignEmail.text.toString(),
                 rootDialogElement.edSignPassword.text.toString()
             )

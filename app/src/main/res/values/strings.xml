@@ -26,6 +26,9 @@
     <string name="sign_in_error">Can\'t Sign In</string>
     <string name="reset_email_was_sent">Reset email was sent!</string>
     <string name="reset_email_message">Please enter your email address</string>
+    <string name="link_done">Email is success linked to Google account</string>
+    <string name="enter_to_gmail">You already have a account with this Email</string>
+    <string name="new_ad">New ad</string>
 
 
 </resources>

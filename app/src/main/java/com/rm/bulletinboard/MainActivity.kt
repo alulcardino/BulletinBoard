@@ -1,44 +1,47 @@
 package com.rm.bulletinboard
 
-import android.accounts.Account
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.navigation.NavigationView
-import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.ktx.Firebase
 import com.rm.bulletinboard.accounthelper.AccountConst
+import com.rm.bulletinboard.act.EditAdsActivity
 import com.rm.bulletinboard.databinding.ActivityMainBinding
 import com.rm.bulletinboard.dialoghelper.DialogConst
 import com.rm.bulletinboard.dialoghelper.DialogHelper
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener  {
-    private lateinit var rootElement : ActivityMainBinding
-    private lateinit var tvAccount:  TextView
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    private lateinit var rootElement: ActivityMainBinding
+    private lateinit var tvAccount: TextView
 
 
     private val dialogHelper = DialogHelper(this)
     val mAuth = FirebaseAuth.getInstance()
 
 
-        override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         rootElement = ActivityMainBinding.inflate(layoutInflater)
         setContentView(rootElement.root);
 
         init()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -50,29 +53,36 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (account != null) {
                     dialogHelper.acHelper.signInFirebaseWithGoogle(account.idToken!!)
                 }
-            } catch (e:ApiException) {
+            } catch (e: ApiException) {
                 Log.d("MyLog", "Api Error : ${e.message}")
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            if (item.itemId == R.id.id_new_ads) {
+                val i = Intent(this, EditAdsActivity::class.java)
+                startActivity(i)
+            }
+        return super.onOptionsItemSelected(item)
+    }
 
     private fun init() {
+        setSupportActionBar(rootElement.mainContent.toolbar)
         val toggle = ActionBarDrawerToggle(this, rootElement.drawerLayout, rootElement.mainContent.toolbar, R.string.open, R.string.close)
         rootElement.drawerLayout.addDrawerListener(toggle)
         toggle.syncState();
-        rootElement.navView.setNavigationItemSelectedListener (this)
+        rootElement.navView.setNavigationItemSelectedListener(this)
         tvAccount = rootElement.navView.getHeaderView(0).findViewById(R.id.tvAccountEmail)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.id_my_ads -> {
                 Toast.makeText(this, "ADS", Toast.LENGTH_LONG).show()
             }
-            R.id.id_car-> {
+            R.id.id_car -> {
                 Toast.makeText(this, "car", Toast.LENGTH_LONG).show()
 
             }
@@ -95,9 +105,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 dialogHelper.createSignDialog(DialogConst.LOG_IN_STATE)
 
             }
-            R.id.id_exit -> {
+            R.id.id_sign_out -> {
                 uiUpdate(null)
                 mAuth.signOut()
+                dialogHelper.acHelper.signOut()
             }
 
         }

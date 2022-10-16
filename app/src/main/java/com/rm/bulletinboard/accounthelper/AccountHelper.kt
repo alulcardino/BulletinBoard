@@ -1,34 +1,70 @@
 package com.rm.bulletinboard.accounthelper
 
+import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.*
 import com.rm.bulletinboard.MainActivity
 import com.rm.bulletinboard.R
+import com.rm.bulletinboard.constants.FirebaseAuthConstance
 
-class AccountHelper(act:MainActivity) {
+class AccountHelper(act: MainActivity) {
     private val act = act
     private lateinit var signInClient: GoogleSignInClient
-    fun signUpWithEmail(email:String, password:String) {
+
+    fun signUpWithEmail(email: String, password: String) {
         if (email.isNotEmpty() || password.isNotEmpty()) {
-            act.mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener{
-                task ->
-                if (task.isSuccessful) {
-                    sendEmailVerification(task.result?.user!!)
-                    act.uiUpdate(task.result?.user)
-                } else {
-                    Toast.makeText(act, act.resources.getString(R.string.sign_up_error), Toast.LENGTH_LONG).show()
+            act.mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        sendEmailVerification(task.result?.user!!)
+                        act.uiUpdate(task.result?.user)
+                    } else {
+                        Toast.makeText(
+                            act, act.resources.getString(R.string.sign_up_error), Toast.LENGTH_LONG
+                        ).show()
+                        Log.d("My Log", "Exception :" + task.exception)
+                        if (task.exception is FirebaseAuthUserCollisionException) {
+                            val exception = task.exception as FirebaseAuthUserCollisionException
+                            if (exception.errorCode == FirebaseAuthConstance.ERROR_EMAIL_ALREADY_IN_USE) {
+                                Toast.makeText(
+                                    act,
+                                    FirebaseAuthConstance.ERROR_EMAIL_ALREADY_IN_USE,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                linkEmailToGmail(email, password)
+                            }
+                        } else if (task.exception is FirebaseAuthInvalidCredentialsException) {
+                            val exception =
+                                task.exception as FirebaseAuthInvalidCredentialsException
+                            if (exception.errorCode == FirebaseAuthConstance.ERROR_INVALID_EMAIL) {
+                                Toast.makeText(act, FirebaseAuthConstance.ERROR_INVALID_EMAIL, Toast.LENGTH_LONG).show()
+                            } else if (exception.errorCode == FirebaseAuthConstance.ERROR_WRONG_PASSWORD) {
+                                Toast.makeText(act, FirebaseAuthConstance.ERROR_WRONG_PASSWORD, Toast.LENGTH_LONG).show()
+                            }
+                        } else if (task.exception is FirebaseAuthInvalidUserException) {
+                            val exception =
+                                task.exception as FirebaseAuthInvalidUserException
+                            if (exception.errorCode == FirebaseAuthConstance.ERROR_USER_NOT_FOUND) {
+                                Toast.makeText(act, FirebaseAuthConstance.ERROR_USER_NOT_FOUND, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        if (task.exception is FirebaseAuthWeakPasswordException) {
+                            val exception = task.exception as FirebaseAuthWeakPasswordException
+                            if (exception.errorCode == FirebaseAuthConstance.ERROR_WEAK_PASSWORD) {
+                                Toast.makeText(act, FirebaseAuthConstance.ERROR_WEAK_PASSWORD, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
                 }
-            }
         }
     }
 
-    private fun getSignInClient():GoogleSignInClient {
+    private fun getSignInClient(): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(act.getString(R.string.default_web_client_id)).build()
+            .requestIdToken(act.getString(R.string.default_web_client_id)).requestEmail().build()
         return GoogleSignIn.getClient(act, gso)
     }
 
@@ -38,39 +74,72 @@ class AccountHelper(act:MainActivity) {
         act.startActivityForResult(intent, AccountConst.SIGN_IN_REQUEST_CODE)
     }
 
-    fun signInFirebaseWithGoogle(token : String) {
+    fun signOut() {
+        getSignInClient().signOut()
+    }
+
+    fun signInFirebaseWithGoogle(token: String) {
         val credential = GoogleAuthProvider.getCredential(token, null)
-        act.mAuth.signInWithCredential(credential).addOnCompleteListener {
-            task ->
+        act.mAuth.signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Toast.makeText(act, "Sign In Done", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-
-    private fun sendEmailVerification (user:FirebaseUser) {
-        user.sendEmailVerification().addOnCompleteListener {
-            task ->
-            if (task.isSuccessful) {
-                Toast.makeText(act, act.resources.getString(R.string.send_verification_email_done), Toast.LENGTH_LONG).show()
+                act.uiUpdate(task.result?.user)
             } else {
-                Toast.makeText(act, act.resources.getString(R.string.send_verification_email_error), Toast.LENGTH_LONG).show()
+                Log.d("MyLog", "Google Exceptions: ${task.exception}")
+            }
+        }
+    }
+
+
+    private fun sendEmailVerification(user: FirebaseUser) {
+        user.sendEmailVerification().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(
+                    act,
+                    act.resources.getString(R.string.send_verification_email_done),
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                Toast.makeText(
+                    act,
+                    act.resources.getString(R.string.send_verification_email_error),
+                    Toast.LENGTH_LONG
+                ).show()
 
             }
         }
     }
 
-    fun logInWithEmail(email:String, password:String) {
+    fun signInWithEmail(email: String, password: String) {
         if (email.isNotEmpty() || password.isNotEmpty()) {
-            act.mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener{
-                    task ->
+            act.mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     act.uiUpdate(task.result?.user)
                 } else {
-                    Toast.makeText(act, act.resources.getString(R.string.sign_in_error), Toast.LENGTH_LONG).show()
+                    if (task.exception is FirebaseAuthInvalidCredentialsException) {
+                        val exception = task.exception as FirebaseAuthInvalidCredentialsException
+                        if (exception.errorCode == FirebaseAuthConstance.ERROR_INVALID_EMAIL) {
+                            Toast.makeText(
+                                act, FirebaseAuthConstance.ERROR_INVALID_EMAIL, Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+
                 }
             }
+        }
+    }
+
+    private fun linkEmailToGmail(email: String, password: String) {
+        val credential = EmailAuthProvider.getCredential(email, password)
+        if (act.mAuth.currentUser != null) {
+            act.mAuth.currentUser?.linkWithCredential(credential)?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(act, act.resources.getString(R.string.link_done), Toast.LENGTH_LONG).show()
+                }
+            }
+        } else {
+            Toast.makeText(act, act.resources.getString(R.string.enter_to_gmail), Toast.LENGTH_LONG).show()
         }
     }
 }
