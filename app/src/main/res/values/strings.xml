@@ -29,6 +29,10 @@
     <string name="link_done">Email is success linked to Google account</string>
     <string name="enter_to_gmail">You already have a account with this Email</string>
     <string name="new_ad">New ad</string>
+    <string name="no_result">No result</string>
+    <string name="select_country">Select country</string>
+    <string name="select_city">Select city</string>
+
 
 
 </resources>
